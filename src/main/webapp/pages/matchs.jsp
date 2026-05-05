@@ -1,8 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
+<%@ page import="java.util.Collections" %>
 <%@ page import="be.technifutur.tournoisf6.models.Match" %>
 <%
     List<Match> matchs = (List<Match>) request.getAttribute("matchs");
+    if (matchs == null) matchs = Collections.emptyList();
 %>
 <!DOCTYPE html>
 <html lang="fr">

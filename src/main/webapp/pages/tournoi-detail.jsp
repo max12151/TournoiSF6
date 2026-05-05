@@ -2,20 +2,28 @@
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Collections" %>
 <%@ page import="be.technifutur.tournoisf6.models.Tournoi" %>
-<%@ page import="be.technifutur.tournoisf6.models.enums.RankEnum" %>
+<%@ page import="be.technifutur.tournoisf6.models.Joueur" %>
+<%@ page import="be.technifutur.tournoisf6.models.InscriptionTournoi" %>
+<%@ page import="be.technifutur.tournoisf6.models.MatchTournoi" %>
+<%@ page import="be.technifutur.tournoisf6.models.enums.EtatTournoiEnum" %>
 <%
-    List<Tournoi> tournois = (List<Tournoi>) request.getAttribute("tournois");
-    if (tournois == null) tournois = Collections.emptyList();
+    Tournoi tournoi = (Tournoi) request.getAttribute("tournoi");
+    List<Joueur> joueurs = (List<Joueur>) request.getAttribute("joueurs");
+    List<InscriptionTournoi> inscriptions = (List<InscriptionTournoi>) request.getAttribute("inscriptions");
+    List<MatchTournoi> matchs = (List<MatchTournoi>) request.getAttribute("matchs");
 
-    RankEnum[] ranks = (RankEnum[]) request.getAttribute("ranks");
-    String erreur = (String) request.getAttribute("erreur");
+    if (joueurs == null) joueurs = Collections.emptyList();
+    if (inscriptions == null) inscriptions = Collections.emptyList();
+    if (matchs == null) matchs = Collections.emptyList();
+
+    String erreur = request.getParameter("erreur");
 %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournois</title>
+    <title>Détail tournoi</title>
     <style>
         :root {
             color-scheme: dark;
@@ -32,6 +40,9 @@
             --primary-2: #16a34a;
             --primary-3: #15803d;
             --accent: #60a5fa;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --danger-active: #b91c1c;
             --danger-bg: rgba(127, 29, 29, 0.30);
             --danger-border: rgba(248, 113, 113, 0.30);
             --danger-text: #fecaca;
@@ -40,7 +51,7 @@
             --radius-sm: 12px;
             --radius-md: 18px;
             --radius-lg: 24px;
-            --max-width: 1180px;
+            --max-width: 1200px;
         }
 
         * {
@@ -70,16 +81,10 @@
             margin: 0 auto;
         }
 
-        .top-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
         h1 {
-            margin: 0 0 28px;
-            font-size: clamp(2rem, 1.4rem + 1.5vw, 3rem);
-            line-height: 1.05;
+            margin: 0 0 20px;
+            font-size: clamp(1.75rem, 1.3rem + 1.2vw, 2.5rem);
+            line-height: 1.1;
             font-weight: 800;
             letter-spacing: -0.03em;
             color: var(--text);
@@ -92,6 +97,12 @@
             font-weight: 700;
             letter-spacing: -0.02em;
             color: var(--text);
+        }
+
+        p {
+            margin: 0 0 12px;
+            line-height: 1.6;
+            color: var(--text-soft);
         }
 
         .card {
@@ -125,14 +136,13 @@
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 14px;
         }
 
         input,
         select,
-        button,
-        .btn-link {
+        button {
             width: 100%;
             min-height: 48px;
             padding: 12px 14px;
@@ -177,8 +187,7 @@
             cursor: not-allowed;
         }
 
-        button,
-        .btn-link {
+        button {
             border: none;
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
             color: #ffffff;
@@ -186,33 +195,39 @@
             letter-spacing: 0.01em;
             cursor: pointer;
             box-shadow: 0 12px 26px rgba(34, 197, 94, 0.28);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: auto;
-            min-width: 220px;
         }
 
-        button:hover,
-        .btn-link:hover {
+        button:hover {
             transform: translateY(-1px);
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-3) 100%);
             box-shadow: 0 16px 32px rgba(34, 197, 94, 0.34);
-            color: #ffffff;
         }
 
-        button:active,
-        .btn-link:active {
+        button:active {
             transform: translateY(0);
         }
 
-        button:focus,
-        .btn-link:focus {
+        button:focus {
             outline: none;
             box-shadow:
                     0 0 0 4px rgba(34, 197, 94, 0.18),
                     0 16px 32px rgba(34, 197, 94, 0.34);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, var(--danger) 0%, var(--danger-hover) 100%);
+            box-shadow: 0 12px 26px rgba(239, 68, 68, 0.28);
+        }
+
+        button.danger:hover {
+            background: linear-gradient(135deg, var(--danger-hover) 0%, var(--danger-active) 100%);
+            box-shadow: 0 16px 32px rgba(239, 68, 68, 0.34);
+        }
+
+        button.danger:focus {
+            box-shadow:
+                    0 0 0 4px rgba(239, 68, 68, 0.18),
+                    0 16px 32px rgba(239, 68, 68, 0.34);
         }
 
         .error {
@@ -269,6 +284,24 @@
             border-bottom: none;
         }
 
+        tbody td form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        tbody td form input {
+            min-height: 38px;
+            font-size: 0.88rem;
+        }
+
+        tbody td form button {
+            min-height: 38px;
+            font-size: 0.88rem;
+            padding: 8px 12px;
+            white-space: nowrap;
+        }
+
         a {
             display: inline-flex;
             align-items: center;
@@ -283,17 +316,13 @@
             color: #bfdbfe;
         }
 
-        a::after {
-            content: "→";
+        a::before {
+            content: "←";
             transition: transform 0.2s ease;
         }
 
-        a:hover::after {
-            transform: translateX(2px);
-        }
-
-        .btn-link::after {
-            content: "";
+        a:hover::before {
+            transform: translateX(-2px);
         }
 
         br {
@@ -319,16 +348,12 @@
             }
 
             h1 {
-                margin-bottom: 22px;
+                margin-bottom: 18px;
             }
 
-            .top-actions {
-                justify-content: stretch;
-            }
-
-            .btn-link {
-                width: 100%;
-                min-width: 0;
+            tbody td form {
+                flex-direction: column;
+                gap: 6px;
             }
         }
 
@@ -352,75 +377,133 @@
 </head>
 <body>
 <div class="container">
-    <div class="top-actions">
-        <a class="btn-link" href="${pageContext.request.contextPath}/">Revenir à l'accueil</a>
-    </div>
 
-    <h1>Tournois SF6</h1>
+    <p><a href="${pageContext.request.contextPath}/tournois">Retour aux tournois</a></p>
 
-    <% if (erreur != null) { %>
+    <% if (erreur != null && !erreur.isBlank()) { %>
     <div class="error"><%= erreur %></div>
     <% } %>
 
     <div class="card">
-        <h2>Créer un tournoi</h2>
-        <form method="post" action="${pageContext.request.contextPath}/tournois">
-            <input type="hidden" name="action" value="create">
+        <h1><%= tournoi.getNom() %></h1>
+        <p><strong>Date début :</strong> <%= tournoi.getDateDebut() %></p>
+        <p><strong>Date fin :</strong> <%= tournoi.getDateFin() %></p>
+        <p><strong>Format :</strong> <%= tournoi.getFormat() %></p>
+        <p><strong>État :</strong> <%= tournoi.getEtat() %></p>
+        <p><strong>Joueurs max :</strong> <%= tournoi.getNombreJoueursMax() %></p>
+        <p><strong>Rank max autorisé :</strong> <%= tournoi.getRankMaxAutorise() %></p>
 
-            <div class="grid">
-                <input type="text" name="nom" placeholder="Nom du tournoi" required>
-                <input type="date" name="dateDebut" required>
-                <input type="date" name="dateFin" required>
-                <input type="number" name="nombreJoueursMax" min="2" placeholder="Nombre max de joueurs" required>
-
-                <select name="rankMaxAutorise" required>
-                    <% for (RankEnum rank : ranks) { %>
-                    <option value="<%= rank.name() %>"><%= rank.name() %></option>
-                    <% } %>
-                </select>
-
-                <input type="text" value="DOUBLE_ELIMINATION" disabled>
-            </div>
-
-            <br>
-            <button type="submit">Créer le tournoi</button>
+        <% if (tournoi.getEtat() == EtatTournoiEnum.EN_ATTENTE) { %>
+        <form method="post" action="${pageContext.request.contextPath}/tournois" style="margin-top:16px;">
+            <input type="hidden" name="action" value="lancer">
+            <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
+            <button type="submit">Lancer le tournoi</button>
         </form>
+        <% } %>
     </div>
 
     <div class="card">
-        <h2>Liste des tournois</h2>
+        <h2>Inscrire un joueur</h2>
 
+        <% if (tournoi.getEtat() == EtatTournoiEnum.EN_ATTENTE) { %>
+        <form method="post" action="${pageContext.request.contextPath}/inscriptions-tournoi">
+            <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
+
+            <div class="grid">
+                <select name="joueurId" required>
+                    <option value="">-- Choisir un joueur --</option>
+                    <% for (Joueur joueur : joueurs) { %>
+                    <option value="<%= joueur.getId() %>">
+                        <%= joueur.getPseudo() %> - <%= joueur.getRank() %>
+                    </option>
+                    <% } %>
+                </select>
+            </div>
+
+            <br>
+            <button type="submit">Inscrire</button>
+        </form>
+        <% } else { %>
+        <p>Les inscriptions sont fermées.</p>
+        <% } %>
+    </div>
+
+    <div class="card">
+        <h2>Joueurs inscrits</h2>
         <table>
             <thead>
             <tr>
-                <th>Nom</th>
-                <th>Date début</th>
-                <th>Date fin</th>
-                <th>Max joueurs</th>
-                <th>Format</th>
-                <th>État</th>
-                <th>Rank max</th>
-                <th>Détail</th>
+                <th>Pseudo</th>
+                <th>Email</th>
+                <th>Rank</th>
+                <th>Main</th>
+                <th>Éliminé</th>
             </tr>
             </thead>
             <tbody>
-            <% for (Tournoi tournoi : tournois) { %>
+            <% for (InscriptionTournoi inscription : inscriptions) { %>
             <tr>
-                <td><%= tournoi.getNom() %></td>
-                <td><%= tournoi.getDateDebut() %></td>
-                <td><%= tournoi.getDateFin() %></td>
-                <td><%= tournoi.getNombreJoueursMax() %></td>
-                <td><%= tournoi.getFormat() %></td>
-                <td><%= tournoi.getEtat() %></td>
-                <td><%= tournoi.getRankMaxAutorise() %></td>
+                <td><%= inscription.getJoueur().getPseudo() %></td>
+                <td><%= inscription.getJoueur().getEmail() %></td>
+                <td><%= inscription.getJoueur().getRank() %></td>
+                <td><%= inscription.getJoueur().getPersonnagePrincipal() %></td>
+                <td><%= inscription.getElimine() ? "Oui" : "Non" %></td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card">
+        <h2>Matchs</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Bracket</th>
+                <th>Round</th>
+                <th>Joueur 1</th>
+                <th>Joueur 2</th>
+                <th>Score</th>
+                <th>Gagnant</th>
+                <th>État</th>
+                <th>Admin</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for (MatchTournoi match : matchs) { %>
+            <tr>
+                <td><%= match.getId() %></td>
+                <td><%= match.getBracketType() %></td>
+                <td><%= match.getRoundNumber() %></td>
+                <td><%= match.getJoueur1() != null ? match.getJoueur1().getPseudo() : "-" %></td>
+                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "-" %></td>
                 <td>
-                    <a href="${pageContext.request.contextPath}/tournois?id=<%= tournoi.getId() %>">Voir</a>
+                    <%= match.getScoreJoueur1() != null ? match.getScoreJoueur1() : "-" %>
+                    -
+                    <%= match.getScoreJoueur2() != null ? match.getScoreJoueur2() : "-" %>
+                </td>
+                <td><%= match.getGagnant() != null ? match.getGagnant().getPseudo() : "-" %></td>
+                <td><%= match.getTermine() ? "Terminé" : "À jouer" %></td>
+                <td>
+                    <% if (!match.getTermine() && match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/matchs">
+                        <input type="hidden" name="matchId" value="<%= match.getId() %>">
+                        <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
+                        <input type="number" name="scoreJoueur1" min="0" placeholder="Score J1" required>
+                        <input type="number" name="scoreJoueur2" min="0" placeholder="Score J2" required>
+                        <button type="submit" class="danger">Valider</button>
+                    </form>
+                    <% } else { %>
+                    -
+                    <% } %>
                 </td>
             </tr>
             <% } %>
             </tbody>
         </table>
     </div>
+
 </div>
 </body>
 </html>

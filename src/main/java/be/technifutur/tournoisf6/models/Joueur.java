@@ -1,7 +1,10 @@
 package be.technifutur.tournoisf6.models;
 
+import be.technifutur.tournoisf6.models.enums.RankEnum;
+import be.technifutur.tournoisf6.models.enums.RoleEnum;
 import jakarta.persistence.*;
-import java.time.LocalDate;
+
+        import java.time.LocalDate;
 
 @Entity
 @Table(name = "joueur")
@@ -25,28 +28,44 @@ public class Joueur {
     @Column(nullable = false)
     private String genre;
 
-    @Column(nullable = false)
-    private Integer elo;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 30)
+    private RankEnum rank = RankEnum.ROOKIE_I;
 
-    @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private RoleEnum role = RoleEnum.JOUEUR;
 
     @Column(nullable = false)
     private String personnagePrincipal;
+
+    @Column(nullable = false)
+    private String pays;
 
     public Joueur() {
     }
 
     public Joueur(String pseudo, String email, String motDePasse, LocalDate dateNaissance,
-                  String genre, Integer elo, String role, String personnagePrincipal) {
+                  String genre, RankEnum rank, RoleEnum role, String personnagePrincipal, String pays) {
         this.pseudo = pseudo;
         this.email = email;
         this.motDePasse = motDePasse;
         this.dateNaissance = dateNaissance;
         this.genre = genre;
-        this.elo = elo;
-        this.role = role;
+        this.rank = (rank == null) ? RankEnum.ROOKIE_I : rank;
+        this.role = (role == null) ? RoleEnum.JOUEUR : role;
         this.personnagePrincipal = personnagePrincipal;
+        this.pays = pays;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (rank == null) {
+            rank = RankEnum.ROOKIE_I;
+        }
+        if (role == null) {
+            role = RoleEnum.JOUEUR;
+        }
     }
 
     public Long getId() {
@@ -93,19 +112,19 @@ public class Joueur {
         this.genre = genre;
     }
 
-    public Integer getElo() {
-        return elo;
+    public RankEnum getRank() {
+        return rank;
     }
 
-    public void setElo(Integer elo) {
-        this.elo = elo;
+    public void setRank(RankEnum rank) {
+        this.rank = rank;
     }
 
-    public String getRole() {
+    public RoleEnum getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(RoleEnum role) {
         this.role = role;
     }
 
@@ -115,5 +134,13 @@ public class Joueur {
 
     public void setPersonnagePrincipal(String personnagePrincipal) {
         this.personnagePrincipal = personnagePrincipal;
+    }
+
+    public String getPays() {
+        return pays;
+    }
+
+    public void setPays(String pays) {
+        this.pays = pays;
     }
 }

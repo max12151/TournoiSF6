@@ -8,6 +8,8 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
         <class>be.technifutur.tournoisf6.models.Joueur</class>
+        <class>be.technifutur.tournoisf6.models.Tournoi</class>
+        <class>be.technifutur.tournoisf6.models.Match</class>
 
         <properties>
             <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
