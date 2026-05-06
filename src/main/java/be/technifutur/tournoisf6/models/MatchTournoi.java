@@ -16,7 +16,7 @@ public class MatchTournoi {
     private Tournoi tournoi;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "bracket_type",nullable = false, length = 20)
+    @Column(name = "bracket_type", nullable = false, length = 20)
     private BracketTypeEnum bracketType;
 
     @Column(name = "round_number", nullable = false)
@@ -44,9 +44,15 @@ public class MatchTournoi {
     @JoinColumn(name = "prochain_match_gagnant_id")
     private MatchTournoi prochainMatchGagnant;
 
+    @Column(name = "slot_prochain_match_gagnant")
+    private Integer slotProchainMatchGagnant;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prochain_match_perdant_id")
     private MatchTournoi prochainMatchPerdant;
+
+    @Column(name = "slot_prochain_match_perdant")
+    private Integer slotProchainMatchPerdant;
 
     @Column(nullable = false)
     private Boolean termine = false;
@@ -150,12 +156,28 @@ public class MatchTournoi {
         this.prochainMatchGagnant = prochainMatchGagnant;
     }
 
+    public Integer getSlotProchainMatchGagnant() {
+        return slotProchainMatchGagnant;
+    }
+
+    public void setSlotProchainMatchGagnant(Integer slotProchainMatchGagnant) {
+        this.slotProchainMatchGagnant = slotProchainMatchGagnant;
+    }
+
     public MatchTournoi getProchainMatchPerdant() {
         return prochainMatchPerdant;
     }
 
     public void setProchainMatchPerdant(MatchTournoi prochainMatchPerdant) {
         this.prochainMatchPerdant = prochainMatchPerdant;
+    }
+
+    public Integer getSlotProchainMatchPerdant() {
+        return slotProchainMatchPerdant;
+    }
+
+    public void setSlotProchainMatchPerdant(Integer slotProchainMatchPerdant) {
+        this.slotProchainMatchPerdant = slotProchainMatchPerdant;
     }
 
     public Boolean getTermine() {
