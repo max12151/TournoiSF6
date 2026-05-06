@@ -11,57 +11,33 @@
         joueurs = new ArrayList<>();
     } else {
         joueurs = new ArrayList<>(joueurs);
-
         Collections.sort(joueurs, Comparator
                 .comparingInt((Joueur j) -> {
                     RankEnum rank = j.getRank();
                     if (rank == null) return Integer.MAX_VALUE;
-
                     switch (rank) {
-                        case MASTER: return 0;
-
-                        case DIAMOND_V: return 1;
-                        case DIAMOND_IV: return 2;
-                        case DIAMOND_III: return 3;
-                        case DIAMOND_II: return 4;
-                        case DIAMOND_I: return 5;
-
-                        case PLATINUM_V: return 6;
-                        case PLATINUM_IV: return 7;
-                        case PLATINUM_III: return 8;
-                        case PLATINUM_II: return 9;
-                        case PLATINUM_I: return 10;
-
-                        case GOLD_V: return 11;
-                        case GOLD_IV: return 12;
-                        case GOLD_III: return 13;
-                        case GOLD_II: return 14;
-                        case GOLD_I: return 15;
-
-                        case SILVER_V: return 16;
-                        case SILVER_IV: return 17;
-                        case SILVER_III: return 18;
-                        case SILVER_II: return 19;
-                        case SILVER_I: return 20;
-
-                        case BRONZE_V: return 21;
-                        case BRONZE_IV: return 22;
-                        case BRONZE_III: return 23;
-                        case BRONZE_II: return 24;
-                        case BRONZE_I: return 25;
-
-                        case IRON_V: return 26;
-                        case IRON_IV: return 27;
-                        case IRON_III: return 28;
-                        case IRON_II: return 29;
-                        case IRON_I: return 30;
-
-                        case ROOKIE_V: return 31;
-                        case ROOKIE_IV: return 32;
-                        case ROOKIE_III: return 33;
-                        case ROOKIE_II: return 34;
-                        case ROOKIE_I: return 35;
-
+                        case MASTER:      return 0;
+                        case DIAMOND_V:   return 1;  case DIAMOND_IV:   return 2;
+                        case DIAMOND_III: return 3;  case DIAMOND_II:   return 4;
+                        case DIAMOND_I:   return 5;
+                        case PLATINUM_V:  return 6;  case PLATINUM_IV:  return 7;
+                        case PLATINUM_III:return 8;  case PLATINUM_II:  return 9;
+                        case PLATINUM_I:  return 10;
+                        case GOLD_V:      return 11; case GOLD_IV:      return 12;
+                        case GOLD_III:    return 13; case GOLD_II:      return 14;
+                        case GOLD_I:      return 15;
+                        case SILVER_V:    return 16; case SILVER_IV:    return 17;
+                        case SILVER_III:  return 18; case SILVER_II:    return 19;
+                        case SILVER_I:    return 20;
+                        case BRONZE_V:    return 21; case BRONZE_IV:    return 22;
+                        case BRONZE_III:  return 23; case BRONZE_II:    return 24;
+                        case BRONZE_I:    return 25;
+                        case IRON_V:      return 26; case IRON_IV:      return 27;
+                        case IRON_III:    return 28; case IRON_II:      return 29;
+                        case IRON_I:      return 30;
+                        case ROOKIE_V:    return 31; case ROOKIE_IV:    return 32;
+                        case ROOKIE_III:  return 33; case ROOKIE_II:    return 34;
+                        case ROOKIE_I:    return 35;
                         default: return Integer.MAX_VALUE;
                     }
                 })
@@ -72,262 +48,315 @@
         );
     }
 
-    String erreur = (String) request.getAttribute("erreur");
+    Joueur joueurConnecte = (Joueur) session.getAttribute("joueurConnecte");
 %>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste des joueurs</title>
+    <title>SF6 Tournoi - Joueurs</title>
     <style>
-        :root {
-            --bg: #0f172a;
-            --card: rgba(17, 24, 39, 0.92);
-            --card-light: #1f2937;
-            --text: #f8fafc;
-            --muted: #cbd5e1;
-            --accent: #22c55e;
-            --accent-hover: #16a34a;
-            --secondary: #334155;
-            --secondary-hover: #475569;
-            --border: rgba(255,255,255,0.08);
-            --shadow: 0 10px 30px rgba(0,0,0,0.25);
-            --radius: 18px;
-        }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            font-family: "Segoe UI", Roboto, Arial, sans-serif;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: var(--text);
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
             min-height: 100vh;
-            padding: 32px 16px;
+            display: flex;
+            flex-direction: column;
         }
 
-        .container { max-width: 1100px; margin: 0 auto; }
-
-        .header-top {
-            display: flex; justify-content: space-between;
-            align-items: center; gap: 16px; flex-wrap: wrap;
-            margin-bottom: 24px;
+        /* ---- HEADER ---- */
+        header {
+            background: #111827;
+            padding: 20px 24px;
+            border-bottom: 1px solid #1f2937;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .title { font-size: 2.2rem; font-weight: 700; }
+        header h1 { color: #f59e0b; font-size: 1.4rem; margin-bottom: 10px; }
 
-        .home-link {
-            display: inline-block; text-decoration: none;
-            background: var(--secondary); color: white;
-            padding: 12px 18px; border-radius: 12px;
-            font-weight: 600; transition: 0.2s ease;
+        nav a {
+            color: #7dd3fc;
+            margin-right: 18px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover { text-decoration: underline; }
+        nav a.active { color: #f59e0b; }
+
+        .header-auth {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 4px;
         }
 
-        .home-link:hover {
-            background: var(--secondary-hover);
-            transform: translateY(-1px);
+        .user-badge {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+        .user-badge strong { color: #f59e0b; }
+
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-logout:hover { background: #dc2626; }
+
+        .btn-login {
+            background: #f59e0b;
+            color: #0f172a;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-login:hover { background: #fbbf24; }
+
+        .btn-register {
+            color: #7dd3fc;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-register:hover { background: #1e293b; }
+
+        .btn-profil {
+            color: #a78bfa;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .btn-profil:hover { background: #1e293b; }
+
+        /* ---- CONTENU ---- */
+        main {
+            max-width: 1150px;
+            margin: 30px auto;
+            padding: 0 20px 40px;
+            width: 100%;
+        }
+
+        .page-title {
+            color: #fbbf24;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
         }
 
         .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 24px;
-            margin-bottom: 24px;
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.20);
         }
 
-        .error {
-            background: rgba(239, 68, 68, 0.12);
-            color: #fecaca;
-            border: 1px solid rgba(239, 68, 68, 0.35);
-            padding: 14px 16px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 600;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-        }
-
-        .form-grid input,
-        .form-grid select {
-            width: 100%;
-            padding: 12px 14px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--card-light);
-            color: var(--text);
-            outline: none;
-        }
-
-        .form-grid input:focus,
-        .form-grid select:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
-        }
-
-        .form-actions {
-            margin-top: 18px;
+        /* Compteur */
+        .stats-bar {
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
         }
-
-        button {
-            background: var(--accent); color: white;
-            border: none; border-radius: 12px;
-            padding: 12px 20px;
-            font-size: 1rem; font-weight: 700;
-            cursor: pointer;
+        .badge-count {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 999px;
+            padding: 5px 14px;
+            font-size: 14px;
+            color: #94a3b8;
         }
+        .badge-count strong { color: #f59e0b; }
 
-        button:hover { background: var(--accent-hover); }
-
+        /* Tableau */
         .table-wrapper { overflow-x: auto; }
 
         table {
-            width: 100%; border-collapse: collapse;
-            border-radius: 14px; overflow: hidden;
+            width: 100%;
+            border-collapse: collapse;
         }
 
-        thead { background: rgba(255,255,255,0.06); }
-
-        th, td {
-            padding: 16px 14px;
-            text-align: left;
-        }
+        thead { background: #0f172a; }
 
         th {
-            font-size: 0.95rem;
-            color: #86efac;
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 12px;
+            color: #64748b;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #334155;
         }
 
-        tbody tr { border-top: 1px solid var(--border); }
+        td {
+            padding: 14px 16px;
+            color: #cbd5e1;
+            border-bottom: 1px solid #1e293b;
+            font-size: 14px;
+        }
 
-        tbody tr:hover { background: rgba(255,255,255,0.04); }
+        tbody tr:hover { background: rgba(255,255,255,0.03); }
 
-        td { color: var(--muted); }
+        /* Rang coloré selon le tier */
+        .rank-master   { color: #e879f9; font-weight: 800; }
+        .rank-diamond  { color: #60a5fa; font-weight: 700; }
+        .rank-platinum { color: #a78bfa; font-weight: 700; }
+        .rank-gold     { color: #fbbf24; font-weight: 700; }
+        .rank-silver   { color: #94a3b8; font-weight: 700; }
+        .rank-bronze   { color: #d97706; font-weight: 700; }
+        .rank-iron     { color: #6b7280; font-weight: 700; }
+        .rank-rookie   { color: #64748b; font-weight: 600; }
 
-        .rank-text { font-weight: 800; color: #93c5fd; }
+        .pseudo-cell { color: #f8fafc; font-weight: bold; }
 
-        .empty {
+        .empty-state {
             text-align: center;
-            color: var(--muted);
-            padding: 24px 0 8px;
+            padding: 48px 20px;
+            color: #475569;
+        }
+        .empty-state p { font-size: 15px; margin-top: 8px; }
+
+        .tag-perso {
+            display: inline-block;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 999px;
+            padding: 3px 10px;
+            font-size: 13px;
+            color: #7dd3fc;
+        }
+
+        .tag-aucun {
+            color: #475569;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
-<div class="container">
 
-    <div class="header-top">
-        <h1 class="title">Joueurs SF6</h1>
-        <a class="home-link" href="${pageContext.request.contextPath}/">Retour à l'accueil</a>
+<header>
+    <div>
+        <h1>Street Fighter 6 Tournament Manager</h1>
+        <nav>
+            <a href="${pageContext.request.contextPath}/">Accueil</a>
+            <a href="${pageContext.request.contextPath}/joueurs" class="active">Joueurs</a>
+            <a href="${pageContext.request.contextPath}/tournois">Tournois</a>
+            <a href="${pageContext.request.contextPath}/matchs">Matchs</a>
+        </nav>
     </div>
+    <div class="header-auth">
+        <% if (joueurConnecte != null) { %>
+        <div class="user-badge">
+            👤 Connecté : <strong><%= joueurConnecte.getPseudo() %></strong>
+        </div>
+        <a href="${pageContext.request.contextPath}/profil" class="btn-profil">⚙️ Mon profil</a>
+        <a href="${pageContext.request.contextPath}/logout" class="btn-logout">Déconnexion</a>
+        <% } else { %>
+        <a href="${pageContext.request.contextPath}/login" class="btn-login">Connexion</a>
+        <a href="${pageContext.request.contextPath}/register" class="btn-register">S'inscrire</a>
+        <% } %>
+    </div>
+</header>
 
-    <% if (erreur != null) { %>
-    <div class="error"><%= erreur %></div>
-    <% } %>
+<main>
+    <h2 class="page-title">⚔️ Classement des joueurs</h2>
 
     <div class="card">
-        <form method="post" action="${pageContext.request.contextPath}/joueurs">
-            <div class="form-grid">
-                <input type="text" name="pseudo" placeholder="Pseudo" required>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="text" name="motDePasse" placeholder="Mot de passe" required>
-                <input type="date" name="dateNaissance">
-                <input type="text" name="genre" placeholder="Genre" required>
-
-                <select name="rank" required>
-                    <option value="ROOKIE_I">Rookie I</option>
-                    <option value="ROOKIE_II">Rookie II</option>
-                    <option value="ROOKIE_III">Rookie III</option>
-                    <option value="ROOKIE_IV">Rookie IV</option>
-                    <option value="ROOKIE_V">Rookie V</option>
-
-                    <option value="IRON_I">Iron I</option>
-                    <option value="IRON_II">Iron II</option>
-                    <option value="IRON_III">Iron III</option>
-                    <option value="IRON_IV">Iron IV</option>
-                    <option value="IRON_V">Iron V</option>
-
-                    <option value="BRONZE_I">Bronze I</option>
-                    <option value="BRONZE_II">Bronze II</option>
-                    <option value="BRONZE_III">Bronze III</option>
-                    <option value="BRONZE_IV">Bronze IV</option>
-                    <option value="BRONZE_V">Bronze V</option>
-
-                    <option value="SILVER_I">Silver I</option>
-                    <option value="SILVER_II">Silver II</option>
-                    <option value="SILVER_III">Silver III</option>
-                    <option value="SILVER_IV">Silver IV</option>
-                    <option value="SILVER_V">Silver V</option>
-
-                    <option value="GOLD_I">Gold I</option>
-                    <option value="GOLD_II">Gold II</option>
-                    <option value="GOLD_III">Gold III</option>
-                    <option value="GOLD_IV">Gold IV</option>
-                    <option value="GOLD_V">Gold V</option>
-
-                    <option value="PLATINUM_I">Platinum I</option>
-                    <option value="PLATINUM_II">Platinum II</option>
-                    <option value="PLATINUM_III">Platinum III</option>
-                    <option value="PLATINUM_IV">Platinum IV</option>
-                    <option value="PLATINUM_V">Platinum V</option>
-
-                    <option value="DIAMOND_I">Diamond I</option>
-                    <option value="DIAMOND_II">Diamond II</option>
-                    <option value="DIAMOND_III">Diamond III</option>
-                    <option value="DIAMOND_IV">Diamond IV</option>
-                    <option value="DIAMOND_V">Diamond V</option>
-
-                    <option value="MASTER">Master</option>
-                </select>
-
-                <input type="text" name="personnagePrincipal" placeholder="Main character" required>
-                <input type="text" name="pays" placeholder="Pays" required>
+        <div class="stats-bar">
+            <div class="badge-count">
+                Total : <strong><%= joueurs.size() %></strong> joueur<%= joueurs.size() > 1 ? "s" : "" %>
             </div>
+        </div>
 
-            <div class="form-actions">
-                <button type="submit">Ajouter</button>
-            </div>
-        </form>
-    </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Pseudo</th>
+                    <th>Main</th>
+                    <th>Pays</th>
+                    <th>Genre</th>
+                    <th>Rang</th>
+                </tr>
+                </thead>
+                <tbody>
+                <% if (joueurs.isEmpty()) { %>
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            🎮
+                            <p>Aucun joueur inscrit pour le moment.</p>
+                        </div>
+                    </td>
+                </tr>
+                <% } else { %>
+                <% for (int i = 0; i < joueurs.size(); i++) {
+                    Joueur j = joueurs.get(i);
+                    String rankName = j.getRank() != null ? j.getRank().name() : "";
+                    String rankClass = "rank-rookie";
+                    if (rankName.startsWith("MASTER"))   rankClass = "rank-master";
+                    else if (rankName.startsWith("DIAMOND"))  rankClass = "rank-diamond";
+                    else if (rankName.startsWith("PLATINUM")) rankClass = "rank-platinum";
+                    else if (rankName.startsWith("GOLD"))     rankClass = "rank-gold";
+                    else if (rankName.startsWith("SILVER"))   rankClass = "rank-silver";
+                    else if (rankName.startsWith("BRONZE"))   rankClass = "rank-bronze";
+                    else if (rankName.startsWith("IRON"))     rankClass = "rank-iron";
 
-    <div class="card table-wrapper">
-        <table>
-            <thead>
-            <tr>
-                <th>Pseudo</th>
-                <th>Genre</th>
-                <th>Main</th>
-                <th>Pays</th>
-                <th>Rank</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% if (joueurs.isEmpty()) { %>
-            <tr>
-                <td colspan="5" class="empty">Aucun joueur trouvé.</td>
-            </tr>
-            <% } else { %>
-            <% for (Joueur joueur : joueurs) { %>
-            <tr>
-                <td><%= joueur.getPseudo() %></td>
-                <td><%= joueur.getGenre() %></td>
-                <td><%= joueur.getPersonnagePrincipal() %></td>
-                <td><%= joueur.getPays() %></td>
-                <td class="rank-text"><%= joueur.getRank() %></td>
-            </tr>
-            <% } %>
-            <% } %>
-            </tbody>
-        </table>
+                    String perso = j.getPersonnagePrincipal();
+                    boolean aucunMain = perso == null || perso.isBlank() || perso.equalsIgnoreCase("Aucun");
+                %>
+                <tr>
+                    <td style="color:#475569;"><%= i + 1 %></td>
+                    <td class="pseudo-cell"><%= j.getPseudo() %></td>
+                    <td>
+                        <% if (aucunMain) { %>
+                        <span class="tag-aucun">—</span>
+                        <% } else { %>
+                        <span class="tag-perso"><%= perso %></span>
+                        <% } %>
+                    </td>
+                    <td><%= j.getPays() != null ? j.getPays() : "—" %></td>
+                    <td style="color:#64748b;"><%= j.getGenre() != null ? j.getGenre() : "—" %></td>
+                    <td class="<%= rankClass %>">
+                        <%= rankName.replace("_", " ") %>
+                    </td>
+                </tr>
+                <% } %>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
+</main>
+
 </body>
 </html>

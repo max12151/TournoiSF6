@@ -1,22 +1,42 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Collections" %>
+<%@ page import="java.util.Comparator" %>
+<%@ page import="java.util.stream.Collectors" %>
 <%@ page import="be.technifutur.tournoisf6.models.Tournoi" %>
 <%@ page import="be.technifutur.tournoisf6.models.Joueur" %>
 <%@ page import="be.technifutur.tournoisf6.models.InscriptionTournoi" %>
 <%@ page import="be.technifutur.tournoisf6.models.MatchTournoi" %>
 <%@ page import="be.technifutur.tournoisf6.models.enums.EtatTournoiEnum" %>
+<%@ page import="be.technifutur.tournoisf6.models.enums.BracketTypeEnum" %>
 <%
     Tournoi tournoi = (Tournoi) request.getAttribute("tournoi");
     List<Joueur> joueurs = (List<Joueur>) request.getAttribute("joueurs");
     List<InscriptionTournoi> inscriptions = (List<InscriptionTournoi>) request.getAttribute("inscriptions");
     List<MatchTournoi> matchs = (List<MatchTournoi>) request.getAttribute("matchs");
+    Joueur champion = (Joueur) request.getAttribute("champion");
 
     if (joueurs == null) joueurs = Collections.emptyList();
     if (inscriptions == null) inscriptions = Collections.emptyList();
     if (matchs == null) matchs = Collections.emptyList();
 
     String erreur = request.getParameter("erreur");
+
+    // Regroupement des matchs par bracket, triés par round
+    List<MatchTournoi> matchsWinners = matchs.stream()
+            .filter(m -> m.getBracketType() == BracketTypeEnum.WINNERS)
+            .sorted(Comparator.comparingInt(MatchTournoi::getRoundNumber))
+            .collect(Collectors.toList());
+
+    List<MatchTournoi> matchsLosers = matchs.stream()
+            .filter(m -> m.getBracketType() == BracketTypeEnum.LOSERS)
+            .sorted(Comparator.comparingInt(MatchTournoi::getRoundNumber))
+            .collect(Collectors.toList());
+
+    List<MatchTournoi> matchsGF = matchs.stream()
+            .filter(m -> m.getBracketType() == BracketTypeEnum.GRAND_FINAL)
+            .sorted(Comparator.comparingInt(MatchTournoi::getRoundNumber))
+            .collect(Collectors.toList());
 %>
 <!DOCTYPE html>
 <html lang="fr">
@@ -46,6 +66,16 @@
             --danger-bg: rgba(127, 29, 29, 0.30);
             --danger-border: rgba(248, 113, 113, 0.30);
             --danger-text: #fecaca;
+            --gold: #fde047;
+            --gold-soft: #fef08a;
+            --gold-bg: rgba(250, 204, 21, 0.07);
+            --gold-border: rgba(250, 204, 21, 0.35);
+            --winners-border: rgba(34, 197, 94, 0.30);
+            --winners-bg: rgba(34, 197, 94, 0.05);
+            --losers-border: rgba(239, 68, 68, 0.25);
+            --losers-bg: rgba(239, 68, 68, 0.04);
+            --gf-border: rgba(250, 204, 21, 0.30);
+            --gf-bg: rgba(250, 204, 21, 0.05);
             --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.18);
             --shadow-2: 0 20px 60px rgba(0, 0, 0, 0.32);
             --radius-sm: 12px;
@@ -54,9 +84,7 @@
             --max-width: 1200px;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         html {
             -webkit-font-smoothing: antialiased;
@@ -76,10 +104,7 @@
             padding: 32px 20px 48px;
         }
 
-        .container {
-            max-width: var(--max-width);
-            margin: 0 auto;
-        }
+        .container { max-width: var(--max-width); margin: 0 auto; }
 
         h1 {
             margin: 0 0 20px;
@@ -134,15 +159,38 @@
             );
         }
 
+        /* Variantes colorées pour chaque bracket */
+        .card.winners { border-color: var(--winners-border); background: var(--winners-bg), var(--surface); }
+        .card.losers  { border-color: var(--losers-border);  background: var(--losers-bg),  var(--surface); }
+        .card.gf      { border-color: var(--gf-border);      background: var(--gf-bg),      var(--surface); }
+        .card.champion-card {
+            border-color: var(--gold-border);
+            background: var(--gold-bg), var(--surface);
+        }
+
+        .bracket-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 3px 10px;
+            border-radius: 99px;
+            margin-bottom: 12px;
+        }
+        .bracket-label.winners { background: rgba(34,197,94,0.15); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+        .bracket-label.losers  { background: rgba(239,68,68,0.15);  color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+        .bracket-label.gf      { background: rgba(250,204,21,0.15); color: #fde047; border: 1px solid rgba(250,204,21,0.3); }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 14px;
         }
 
-        input,
-        select,
-        button {
+        input, select, button {
             width: 100%;
             min-height: 48px;
             padding: 12px 14px;
@@ -156,36 +204,27 @@
                     color 0.2s ease;
         }
 
-        input,
-        select {
+        input, select {
             border: 1px solid var(--line);
             background: var(--surface-2);
             color: var(--text);
             outline: none;
         }
 
-        input::placeholder {
-            color: var(--text-muted);
-        }
+        input::placeholder { color: var(--text-muted); }
 
-        input:hover,
-        select:hover {
+        input:hover, select:hover {
             border-color: var(--line-strong);
             background: rgba(30, 41, 59, 0.98);
         }
 
-        input:focus,
-        select:focus {
+        input:focus, select:focus {
             border-color: rgba(96, 165, 250, 0.75);
             box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
             background: rgba(30, 41, 59, 1);
         }
 
-        input[disabled],
-        select[disabled] {
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
+        input[disabled], select[disabled] { opacity: 0.7; cursor: not-allowed; }
 
         button {
             border: none;
@@ -203,15 +242,11 @@
             box-shadow: 0 16px 32px rgba(34, 197, 94, 0.34);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
+        button:active { transform: translateY(0); }
 
         button:focus {
             outline: none;
-            box-shadow:
-                    0 0 0 4px rgba(34, 197, 94, 0.18),
-                    0 16px 32px rgba(34, 197, 94, 0.34);
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.18), 0 16px 32px rgba(34, 197, 94, 0.34);
         }
 
         button.danger {
@@ -225,9 +260,7 @@
         }
 
         button.danger:focus {
-            box-shadow:
-                    0 0 0 4px rgba(239, 68, 68, 0.18),
-                    0 16px 32px rgba(239, 68, 68, 0.34);
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18), 0 16px 32px rgba(239, 68, 68, 0.34);
         }
 
         .error {
@@ -272,17 +305,16 @@
             vertical-align: middle;
         }
 
-        tbody tr {
-            transition: background-color 0.18s ease;
-        }
+        tbody tr { transition: background-color 0.18s ease; }
+        tbody tr:hover { background: rgba(96, 165, 250, 0.06); }
+        tbody tr:last-child td { border-bottom: none; }
 
-        tbody tr:hover {
-            background: rgba(96, 165, 250, 0.06);
-        }
+        /* Ligne grisée pour les byes (match auto-complété) */
+        tbody tr.bye-row { opacity: 0.55; }
+        tbody tr.bye-row td { font-style: italic; color: var(--text-muted); }
 
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
+        /* Ligne dorée pour le bracket reset */
+        tbody tr.reset-row td { color: var(--gold); }
 
         tbody td form {
             display: flex;
@@ -302,6 +334,33 @@
             white-space: nowrap;
         }
 
+        /* Badge état match */
+        .badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .badge.done    { background: rgba(34,197,94,0.15);  color: #86efac; border: 1px solid rgba(34,197,94,0.25); }
+        .badge.pending { background: rgba(96,165,250,0.12); color: #93c5fd; border: 1px solid rgba(96,165,250,0.25); }
+        .badge.bye     { background: rgba(148,163,184,0.10); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.2); }
+        .badge.waiting { background: rgba(250,204,21,0.10); color: #fde047; border: 1px solid rgba(250,204,21,0.2); }
+
+        /* Bannière champion */
+        .champion-name {
+            font-size: clamp(1.4rem, 1rem + 1.2vw, 2rem);
+            font-weight: 800;
+            color: var(--gold-soft);
+            letter-spacing: -0.02em;
+            margin: 6px 0 2px;
+        }
+        .champion-rank {
+            font-size: 1rem;
+            color: var(--gold);
+            font-weight: 600;
+        }
+
         a {
             display: inline-flex;
             align-items: center;
@@ -312,66 +371,24 @@
             transition: color 0.2s ease;
         }
 
-        a:hover {
-            color: #bfdbfe;
-        }
+        a:hover { color: #bfdbfe; }
+        a::before { content: "←"; transition: transform 0.2s ease; }
+        a:hover::before { transform: translateX(-2px); }
 
-        a::before {
-            content: "←";
-            transition: transform 0.2s ease;
-        }
-
-        a:hover::before {
-            transform: translateX(-2px);
-        }
-
-        br {
-            display: block;
-            content: "";
-            margin-top: 4px;
-        }
+        br { display: block; content: ""; margin-top: 4px; }
 
         @media (max-width: 900px) {
-            body {
-                padding: 22px 14px 36px;
-            }
-
-            .card {
-                padding: 18px;
-                border-radius: 20px;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            h1 {
-                margin-bottom: 18px;
-            }
-
-            tbody td form {
-                flex-direction: column;
-                gap: 6px;
-            }
+            body { padding: 22px 14px 36px; }
+            .card { padding: 18px; border-radius: 20px; }
+            table { display: block; overflow-x: auto; white-space: nowrap; }
+            h1 { margin-bottom: 18px; }
+            tbody td form { flex-direction: column; gap: 6px; }
         }
 
         @media (max-width: 560px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            input,
-            select,
-            button {
-                min-height: 46px;
-            }
-
-            thead th,
-            tbody td {
-                padding: 13px 12px;
-            }
+            .grid { grid-template-columns: 1fr; }
+            input, select, button { min-height: 46px; }
+            thead th, tbody td { padding: 13px 12px; }
         }
     </style>
 </head>
@@ -384,6 +401,20 @@
     <div class="error"><%= erreur %></div>
     <% } %>
 
+    <%-- ═══════════════════════════════════════════════
+         BANNIÈRE CHAMPION (visible uniquement si tournoi TERMINÉ)
+         ═══════════════════════════════════════════════ --%>
+    <% if (champion != null) { %>
+    <div class="card champion-card">
+        <h2 style="color: var(--gold); margin-bottom: 8px;">🏆 Champion du tournoi</h2>
+        <div class="champion-name"><%= champion.getPseudo() %></div>
+        <div class="champion-rank"><%= champion.getRank() %></div>
+    </div>
+    <% } %>
+
+    <%-- ═══════════════════════════════════════════════
+         INFOS TOURNOI
+         ═══════════════════════════════════════════════ --%>
     <div class="card">
         <h1><%= tournoi.getNom() %></h1>
         <p><strong>Date début :</strong> <%= tournoi.getDateDebut() %></p>
@@ -402,13 +433,15 @@
         <% } %>
     </div>
 
+    <%-- ═══════════════════════════════════════════════
+         INSCRIPTION JOUEUR
+         ═══════════════════════════════════════════════ --%>
     <div class="card">
         <h2>Inscrire un joueur</h2>
 
         <% if (tournoi.getEtat() == EtatTournoiEnum.EN_ATTENTE) { %>
         <form method="post" action="${pageContext.request.contextPath}/inscriptions-tournoi">
             <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
-
             <div class="grid">
                 <select name="joueurId" required>
                     <option value="">-- Choisir un joueur --</option>
@@ -419,7 +452,6 @@
                     <% } %>
                 </select>
             </div>
-
             <br>
             <button type="submit">Inscrire</button>
         </form>
@@ -428,6 +460,9 @@
         <% } %>
     </div>
 
+    <%-- ═══════════════════════════════════════════════
+         JOUEURS INSCRITS
+         ═══════════════════════════════════════════════ --%>
     <div class="card">
         <h2>Joueurs inscrits</h2>
         <table>
@@ -454,13 +489,17 @@
         </table>
     </div>
 
-    <div class="card">
-        <h2>Matchs</h2>
+    <%-- ═══════════════════════════════════════════════
+         MATCHS — WINNERS BRACKET
+         ═══════════════════════════════════════════════ --%>
+    <% if (!matchsWinners.isEmpty()) { %>
+    <div class="card winners">
+        <span class="bracket-label winners">🏅 Winners Bracket</span>
+        <h2 style="margin-top:4px;">Winners Bracket</h2>
         <table>
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Bracket</th>
                 <th>Round</th>
                 <th>Joueur 1</th>
                 <th>Joueur 2</th>
@@ -471,22 +510,37 @@
             </tr>
             </thead>
             <tbody>
-            <% for (MatchTournoi match : matchs) { %>
-            <tr>
+            <% for (MatchTournoi match : matchsWinners) {
+                // Masquer les matchs fantômes (slots vides non joués — ne devraient pas exister en WB)
+                if (match.getJoueur1() == null && match.getJoueur2() == null && !Boolean.TRUE.equals(match.getTermine())) continue;
+                // Déterminer si c'est un bye (match auto-complété sans adversaire)
+                boolean isBye = Boolean.TRUE.equals(match.getTermine())
+                        && (match.getJoueur1() == null || match.getJoueur2() == null);
+            %>
+            <tr class="<%= isBye ? "bye-row" : "" %>">
                 <td><%= match.getId() %></td>
-                <td><%= match.getBracketType() %></td>
-                <td><%= match.getRoundNumber() %></td>
+                <td>R<%= match.getRoundNumber() %></td>
                 <td><%= match.getJoueur1() != null ? match.getJoueur1().getPseudo() : "-" %></td>
-                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "-" %></td>
+                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "BYE" %></td>
                 <td>
                     <%= match.getScoreJoueur1() != null ? match.getScoreJoueur1() : "-" %>
                     -
                     <%= match.getScoreJoueur2() != null ? match.getScoreJoueur2() : "-" %>
                 </td>
                 <td><%= match.getGagnant() != null ? match.getGagnant().getPseudo() : "-" %></td>
-                <td><%= match.getTermine() ? "Terminé" : "À jouer" %></td>
                 <td>
-                    <% if (!match.getTermine() && match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <% if (isBye) { %>
+                    <span class="badge bye">Bye</span>
+                    <% } else if (Boolean.TRUE.equals(match.getTermine())) { %>
+                    <span class="badge done">Terminé</span>
+                    <% } else if (match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <span class="badge pending">À jouer</span>
+                    <% } else { %>
+                    <span class="badge waiting">En attente</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (!Boolean.TRUE.equals(match.getTermine()) && match.getJoueur1() != null && match.getJoueur2() != null) { %>
                     <form method="post" action="${pageContext.request.contextPath}/admin/matchs">
                         <input type="hidden" name="matchId" value="<%= match.getId() %>">
                         <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
@@ -503,6 +557,157 @@
             </tbody>
         </table>
     </div>
+    <% } %>
+
+    <%-- ═══════════════════════════════════════════════
+         MATCHS — LOSERS BRACKET
+         ═══════════════════════════════════════════════ --%>
+    <% if (!matchsLosers.isEmpty()) { %>
+    <div class="card losers">
+        <span class="bracket-label losers">💀 Losers Bracket</span>
+        <h2 style="margin-top:4px;">Losers Bracket</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Round</th>
+                <th>Joueur 1</th>
+                <th>Joueur 2</th>
+                <th>Score</th>
+                <th>Gagnant</th>
+                <th>État</th>
+                <th>Admin</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for (MatchTournoi match : matchsLosers) {
+                // Masquer les matchs fantômes (2 joueurs null = slot jamais joué)
+                if (match.getJoueur1() == null && match.getJoueur2() == null && !Boolean.TRUE.equals(match.getTermine())) continue;
+                boolean isBye = Boolean.TRUE.equals(match.getTermine())
+                        && (match.getJoueur1() == null || match.getJoueur2() == null);
+            %>
+            <tr class="<%= isBye ? "bye-row" : "" %>">
+                <td><%= match.getId() %></td>
+                <td>R<%= match.getRoundNumber() %></td>
+                <td><%= match.getJoueur1() != null ? match.getJoueur1().getPseudo() : "-" %></td>
+                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "BYE" %></td>
+                <td>
+                    <%= match.getScoreJoueur1() != null ? match.getScoreJoueur1() : "-" %>
+                    -
+                    <%= match.getScoreJoueur2() != null ? match.getScoreJoueur2() : "-" %>
+                </td>
+                <td><%= match.getGagnant() != null ? match.getGagnant().getPseudo() : "-" %></td>
+                <td>
+                    <% if (isBye) { %>
+                    <span class="badge bye">Bye</span>
+                    <% } else if (Boolean.TRUE.equals(match.getTermine())) { %>
+                    <span class="badge done">Terminé</span>
+                    <% } else if (match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <span class="badge pending">À jouer</span>
+                    <% } else { %>
+                    <span class="badge waiting">En attente</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (!Boolean.TRUE.equals(match.getTermine()) && match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/matchs">
+                        <input type="hidden" name="matchId" value="<%= match.getId() %>">
+                        <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
+                        <input type="number" name="scoreJoueur1" min="0" placeholder="Score J1" required>
+                        <input type="number" name="scoreJoueur2" min="0" placeholder="Score J2" required>
+                        <button type="submit" class="danger">Valider</button>
+                    </form>
+                    <% } else { %>
+                    -
+                    <% } %>
+                </td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+    <% } %>
+
+    <%-- ═══════════════════════════════════════════════
+         MATCHS — GRAND FINAL
+         ═══════════════════════════════════════════════ --%>
+    <% if (!matchsGF.isEmpty()) { %>
+    <div class="card gf">
+        <span class="bracket-label gf">⭐ Grand Final</span>
+        <h2 style="margin-top:4px;">Grand Final</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Round</th>
+                <th>Joueur 1</th>
+                <th>Joueur 2</th>
+                <th>Score</th>
+                <th>Gagnant</th>
+                <th>État</th>
+                <th>Admin</th>
+            </tr>
+            </thead>
+            <tbody>
+            <% for (MatchTournoi match : matchsGF) {
+                // GF Round 2 (bracket reset) avec joueurs null = en attente, on l'affiche mais pas de formulaire
+                boolean isReset = match.getRoundNumber() == 2
+                        && match.getJoueur1() == null
+                        && match.getJoueur2() == null
+                        && !Boolean.TRUE.equals(match.getTermine());
+                // GF Round 2 désactivé (joueur WB a gagné GF R1) = terminé mais sans gagnant réel enregistré
+                boolean isResetDesactive = match.getRoundNumber() == 2
+                        && Boolean.TRUE.equals(match.getTermine())
+                        && match.getGagnant() == null;
+            %>
+            <tr class="<%= (match.getRoundNumber() == 2) ? "reset-row" : "" %>">
+                <td><%= match.getId() %></td>
+                <td>
+                    R<%= match.getRoundNumber() %>
+                    <% if (match.getRoundNumber() == 2) { %>
+                    <span style="font-size:0.75rem; color:var(--gold); margin-left:4px;">(Reset)</span>
+                    <% } %>
+                </td>
+                <td><%= match.getJoueur1() != null ? match.getJoueur1().getPseudo() : "-" %></td>
+                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "-" %></td>
+                <td>
+                    <%= match.getScoreJoueur1() != null ? match.getScoreJoueur1() : "-" %>
+                    -
+                    <%= match.getScoreJoueur2() != null ? match.getScoreJoueur2() : "-" %>
+                </td>
+                <td><%= match.getGagnant() != null ? match.getGagnant().getPseudo() : "-" %></td>
+                <td>
+                    <% if (isReset) { %>
+                    <span class="badge waiting">En attente (bracket reset)</span>
+                    <% } else if (isResetDesactive) { %>
+                    <span class="badge bye">Non joué</span>
+                    <% } else if (Boolean.TRUE.equals(match.getTermine())) { %>
+                    <span class="badge done">Terminé</span>
+                    <% } else if (match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <span class="badge pending">À jouer</span>
+                    <% } else { %>
+                    <span class="badge waiting">En attente</span>
+                    <% } %>
+                </td>
+                <td>
+                    <% if (!Boolean.TRUE.equals(match.getTermine()) && match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <form method="post" action="${pageContext.request.contextPath}/admin/matchs">
+                        <input type="hidden" name="matchId" value="<%= match.getId() %>">
+                        <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
+                        <input type="number" name="scoreJoueur1" min="0" placeholder="Score J1" required>
+                        <input type="number" name="scoreJoueur2" min="0" placeholder="Score J2" required>
+                        <button type="submit" class="danger">Valider</button>
+                    </form>
+                    <% } else { %>
+                    -
+                    <% } %>
+                </td>
+            </tr>
+            <% } %>
+            </tbody>
+        </table>
+    </div>
+    <% } %>
 
 </div>
 </body>

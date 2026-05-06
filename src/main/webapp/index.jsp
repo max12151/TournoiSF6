@@ -225,6 +225,11 @@
         <div class="user-badge">
             👤 Connecté : <strong><%= joueurConnecte.getPseudo() %></strong>
         </div>
+        <a href="${pageContext.request.contextPath}/profil"
+           style="color:#a78bfa;font-size:14px;font-weight:bold;text-decoration:none;
+              border:1px solid #334155;border-radius:8px;padding:8px 16px;">
+            ⚙️ Mon profil
+        </a>
         <a href="${pageContext.request.contextPath}/logout" class="btn-logout">Déconnexion</a>
         <% } else { %>
         <a href="${pageContext.request.contextPath}/login" class="btn-login">Connexion</a>

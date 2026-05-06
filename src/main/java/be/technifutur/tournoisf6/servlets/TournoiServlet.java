@@ -1,6 +1,8 @@
 package be.technifutur.tournoisf6.servlets;
 
+import be.technifutur.tournoisf6.models.MatchTournoi;
 import be.technifutur.tournoisf6.models.Tournoi;
+import be.technifutur.tournoisf6.models.enums.BracketTypeEnum;
 import be.technifutur.tournoisf6.models.enums.EtatTournoiEnum;
 import be.technifutur.tournoisf6.models.enums.FormatTournoiEnum;
 import be.technifutur.tournoisf6.models.enums.RankEnum;
@@ -16,6 +18,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Comparator;
+import java.util.List;
 
 @WebServlet("/tournois")
 public class TournoiServlet extends HttpServlet {
@@ -42,13 +46,26 @@ public class TournoiServlet extends HttpServlet {
                     return;
                 }
 
+                List<MatchTournoi> matchs = matchTournoiService.findByTournoi(id);
+
+                // Recherche du champion : gagnant du dernier match GRAND_FINAL terminé
+                // (soit GF R2 si bracket reset joué, soit GF R1 si le joueur WB a gagné directement)
+                matchs.stream()
+                        .filter(m -> m.getBracketType() == BracketTypeEnum.GRAND_FINAL
+                                && Boolean.TRUE.equals(m.getTermine())
+                                && m.getGagnant() != null)
+                        .max(Comparator.comparingInt(MatchTournoi::getRoundNumber))
+                        .map(MatchTournoi::getGagnant)
+                        .ifPresent(c -> req.setAttribute("champion", c));
+
                 req.setAttribute("tournoi", tournoi);
                 req.setAttribute("joueurs", joueurService.findAll());
                 req.setAttribute("inscriptions", inscriptionTournoiService.findByTournoi(id));
-                req.setAttribute("matchs", matchTournoiService.findByTournoi(id));
+                req.setAttribute("matchs", matchs);
 
                 req.getRequestDispatcher("/pages/tournoi-detail.jsp").forward(req, resp);
                 return;
+
             } catch (Exception e) {
                 req.setAttribute("erreur", e.getMessage());
                 req.setAttribute("tournois", tournoiService.findAll());
@@ -100,6 +117,7 @@ public class TournoiServlet extends HttpServlet {
             }
 
             resp.sendRedirect(req.getContextPath() + "/tournois");
+
         } catch (Exception e) {
             req.setAttribute("erreur", e.getMessage());
             req.setAttribute("tournois", tournoiService.findAll());
