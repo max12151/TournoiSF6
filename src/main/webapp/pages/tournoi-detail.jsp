@@ -159,7 +159,6 @@
             );
         }
 
-        /* Variantes colorées pour chaque bracket */
         .card.winners { border-color: var(--winners-border); background: var(--winners-bg), var(--surface); }
         .card.losers  { border-color: var(--losers-border);  background: var(--losers-bg),  var(--surface); }
         .card.gf      { border-color: var(--gf-border);      background: var(--gf-bg),      var(--surface); }
@@ -309,11 +308,9 @@
         tbody tr:hover { background: rgba(96, 165, 250, 0.06); }
         tbody tr:last-child td { border-bottom: none; }
 
-        /* Ligne grisée pour les byes (match auto-complété) */
         tbody tr.bye-row { opacity: 0.55; }
         tbody tr.bye-row td { font-style: italic; color: var(--text-muted); }
 
-        /* Ligne dorée pour le bracket reset */
         tbody tr.reset-row td { color: var(--gold); }
 
         tbody td form {
@@ -334,7 +331,6 @@
             white-space: nowrap;
         }
 
-        /* Badge état match */
         .badge {
             display: inline-block;
             padding: 2px 9px;
@@ -347,7 +343,6 @@
         .badge.bye     { background: rgba(148,163,184,0.10); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.2); }
         .badge.waiting { background: rgba(250,204,21,0.10); color: #fde047; border: 1px solid rgba(250,204,21,0.2); }
 
-        /* Bannière champion */
         .champion-name {
             font-size: clamp(1.4rem, 1rem + 1.2vw, 2rem);
             font-weight: 800;
@@ -401,9 +396,7 @@
     <div class="error"><%= erreur %></div>
     <% } %>
 
-    <%-- ═══════════════════════════════════════════════
-         BANNIÈRE CHAMPION (visible uniquement si tournoi TERMINÉ)
-         ═══════════════════════════════════════════════ --%>
+    <%-- BANNIÈRE CHAMPION --%>
     <% if (champion != null) { %>
     <div class="card champion-card">
         <h2 style="color: var(--gold); margin-bottom: 8px;">🏆 Champion du tournoi</h2>
@@ -412,9 +405,7 @@
     </div>
     <% } %>
 
-    <%-- ═══════════════════════════════════════════════
-         INFOS TOURNOI
-         ═══════════════════════════════════════════════ --%>
+    <%-- INFOS TOURNOI --%>
     <div class="card">
         <h1><%= tournoi.getNom() %></h1>
         <p><strong>Date début :</strong> <%= tournoi.getDateDebut() %></p>
@@ -433,12 +424,9 @@
         <% } %>
     </div>
 
-    <%-- ═══════════════════════════════════════════════
-         INSCRIPTION JOUEUR
-         ═══════════════════════════════════════════════ --%>
+    <%-- INSCRIPTION JOUEUR --%>
     <div class="card">
         <h2>Inscrire un joueur</h2>
-
         <% if (tournoi.getEtat() == EtatTournoiEnum.EN_ATTENTE) { %>
         <form method="post" action="${pageContext.request.contextPath}/inscriptions-tournoi">
             <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
@@ -460,9 +448,7 @@
         <% } %>
     </div>
 
-    <%-- ═══════════════════════════════════════════════
-         JOUEURS INSCRITS
-         ═══════════════════════════════════════════════ --%>
+    <%-- JOUEURS INSCRITS --%>
     <div class="card">
         <h2>Joueurs inscrits</h2>
         <table>
@@ -489,9 +475,7 @@
         </table>
     </div>
 
-    <%-- ═══════════════════════════════════════════════
-         MATCHS — WINNERS BRACKET
-         ═══════════════════════════════════════════════ --%>
+    <%-- WINNERS BRACKET --%>
     <% if (!matchsWinners.isEmpty()) { %>
     <div class="card winners">
         <span class="bracket-label winners">🏅 Winners Bracket</span>
@@ -499,21 +483,13 @@
         <table>
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Round</th>
-                <th>Joueur 1</th>
-                <th>Joueur 2</th>
-                <th>Score</th>
-                <th>Gagnant</th>
-                <th>État</th>
-                <th>Admin</th>
+                <th>ID</th><th>Round</th><th>Joueur 1</th><th>Joueur 2</th>
+                <th>Score</th><th>Gagnant</th><th>État</th><th>Admin</th>
             </tr>
             </thead>
             <tbody>
             <% for (MatchTournoi match : matchsWinners) {
-                // Masquer les matchs fantômes (slots vides non joués — ne devraient pas exister en WB)
                 if (match.getJoueur1() == null && match.getJoueur2() == null && !Boolean.TRUE.equals(match.getTermine())) continue;
-                // Déterminer si c'est un bye (match auto-complété sans adversaire)
                 boolean isBye = Boolean.TRUE.equals(match.getTermine())
                         && (match.getJoueur1() == null || match.getJoueur2() == null);
             %>
@@ -521,7 +497,15 @@
                 <td><%= match.getId() %></td>
                 <td>R<%= match.getRoundNumber() %></td>
                 <td><%= match.getJoueur1() != null ? match.getJoueur1().getPseudo() : "-" %></td>
-                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "BYE" %></td>
+                <td>
+                    <% if (match.getJoueur2() != null) { %>
+                    <%= match.getJoueur2().getPseudo() %>
+                    <% } else if (isBye) { %>
+                    BYE
+                    <% } else { %>
+                    -
+                    <% } %>
+                </td>
                 <td>
                     <%= match.getScoreJoueur1() != null ? match.getScoreJoueur1() : "-" %>
                     -
@@ -548,9 +532,7 @@
                         <input type="number" name="scoreJoueur2" min="0" placeholder="Score J2" required>
                         <button type="submit" class="danger">Valider</button>
                     </form>
-                    <% } else { %>
-                    -
-                    <% } %>
+                    <% } else { %>-<% } %>
                 </td>
             </tr>
             <% } %>
@@ -559,9 +541,7 @@
     </div>
     <% } %>
 
-    <%-- ═══════════════════════════════════════════════
-         MATCHS — LOSERS BRACKET
-         ═══════════════════════════════════════════════ --%>
+    <%-- LOSERS BRACKET --%>
     <% if (!matchsLosers.isEmpty()) { %>
     <div class="card losers">
         <span class="bracket-label losers">💀 Losers Bracket</span>
@@ -569,28 +549,36 @@
         <table>
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Round</th>
-                <th>Joueur 1</th>
-                <th>Joueur 2</th>
-                <th>Score</th>
-                <th>Gagnant</th>
-                <th>État</th>
-                <th>Admin</th>
+                <th>ID</th><th>Round</th><th>Joueur 1</th><th>Joueur 2</th>
+                <th>Score</th><th>Gagnant</th><th>État</th><th>Admin</th>
             </tr>
             </thead>
             <tbody>
-            <% for (MatchTournoi match : matchsLosers) {
-                // Masquer les matchs fantômes (2 joueurs null = slot jamais joué)
-                if (match.getJoueur1() == null && match.getJoueur2() == null && !Boolean.TRUE.equals(match.getTermine())) continue;
-                boolean isBye = Boolean.TRUE.equals(match.getTermine())
-                        && (match.getJoueur1() == null || match.getJoueur2() == null);
+            <%
+                for (MatchTournoi match : matchsLosers) {
+                    boolean j1 = match.getJoueur1() != null;
+                    boolean j2 = match.getJoueur2() != null;
+                    boolean termine = Boolean.TRUE.equals(match.getTermine());
+
+                    // Masquer slot fantôme : 0 joueur et non terminé
+                    if (!j1 && !j2 && !termine) continue;
+
+
+                    boolean isBye = termine && (!j1 || !j2);
             %>
             <tr class="<%= isBye ? "bye-row" : "" %>">
                 <td><%= match.getId() %></td>
                 <td>R<%= match.getRoundNumber() %></td>
-                <td><%= match.getJoueur1() != null ? match.getJoueur1().getPseudo() : "-" %></td>
-                <td><%= match.getJoueur2() != null ? match.getJoueur2().getPseudo() : "BYE" %></td>
+                <td><%= j1 ? match.getJoueur1().getPseudo() : "-" %></td>
+                <td>
+                    <% if (j2) { %>
+                    <%= match.getJoueur2().getPseudo() %>
+                    <% } else if (isBye) { %>
+                    BYE
+                    <% } else { %>
+                    -
+                    <% } %>
+                </td>
                 <td>
                     <%= match.getScoreJoueur1() != null ? match.getScoreJoueur1() : "-" %>
                     -
@@ -600,16 +588,16 @@
                 <td>
                     <% if (isBye) { %>
                     <span class="badge bye">Bye</span>
-                    <% } else if (Boolean.TRUE.equals(match.getTermine())) { %>
+                    <% } else if (termine) { %>
                     <span class="badge done">Terminé</span>
-                    <% } else if (match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <% } else if (j1 && j2) { %>
                     <span class="badge pending">À jouer</span>
                     <% } else { %>
-                    <span class="badge waiting">En attente</span>
+                    <span class="badge waiting">En attente d'un adversaire</span>
                     <% } %>
                 </td>
                 <td>
-                    <% if (!Boolean.TRUE.equals(match.getTermine()) && match.getJoueur1() != null && match.getJoueur2() != null) { %>
+                    <% if (!termine && j1 && j2) { %>
                     <form method="post" action="${pageContext.request.contextPath}/admin/matchs">
                         <input type="hidden" name="matchId" value="<%= match.getId() %>">
                         <input type="hidden" name="tournoiId" value="<%= tournoi.getId() %>">
@@ -617,9 +605,7 @@
                         <input type="number" name="scoreJoueur2" min="0" placeholder="Score J2" required>
                         <button type="submit" class="danger">Valider</button>
                     </form>
-                    <% } else { %>
-                    -
-                    <% } %>
+                    <% } else { %>-<% } %>
                 </td>
             </tr>
             <% } %>
@@ -628,9 +614,7 @@
     </div>
     <% } %>
 
-    <%-- ═══════════════════════════════════════════════
-         MATCHS — GRAND FINAL
-         ═══════════════════════════════════════════════ --%>
+    <%-- GRAND FINAL --%>
     <% if (!matchsGF.isEmpty()) { %>
     <div class="card gf">
         <span class="bracket-label gf">⭐ Grand Final</span>
@@ -638,24 +622,16 @@
         <table>
             <thead>
             <tr>
-                <th>ID</th>
-                <th>Round</th>
-                <th>Joueur 1</th>
-                <th>Joueur 2</th>
-                <th>Score</th>
-                <th>Gagnant</th>
-                <th>État</th>
-                <th>Admin</th>
+                <th>ID</th><th>Round</th><th>Joueur 1</th><th>Joueur 2</th>
+                <th>Score</th><th>Gagnant</th><th>État</th><th>Admin</th>
             </tr>
             </thead>
             <tbody>
             <% for (MatchTournoi match : matchsGF) {
-                // GF Round 2 (bracket reset) avec joueurs null = en attente, on l'affiche mais pas de formulaire
                 boolean isReset = match.getRoundNumber() == 2
                         && match.getJoueur1() == null
                         && match.getJoueur2() == null
                         && !Boolean.TRUE.equals(match.getTermine());
-                // GF Round 2 désactivé (joueur WB a gagné GF R1) = terminé mais sans gagnant réel enregistré
                 boolean isResetDesactive = match.getRoundNumber() == 2
                         && Boolean.TRUE.equals(match.getTermine())
                         && match.getGagnant() == null;
@@ -698,9 +674,7 @@
                         <input type="number" name="scoreJoueur2" min="0" placeholder="Score J2" required>
                         <button type="submit" class="danger">Valider</button>
                     </form>
-                    <% } else { %>
-                    -
-                    <% } %>
+                    <% } else { %>-<% } %>
                 </td>
             </tr>
             <% } %>

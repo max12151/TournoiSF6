@@ -170,7 +170,7 @@ public class MatchTournoiService {
 
         // ── G. AUTO-COMPLÉTION DES BYES LB ──
         // Après le placement WB R1, certains matchs LB R1 peuvent avoir un seul joueur
-        autoCompleterByesLoser(roundsLosers.get(0));
+        autoCompleterByesLoser(roundsLosers);
     }
 
     // =========================================================================
@@ -336,11 +336,9 @@ public class MatchTournoiService {
                     indexNext = i / 2;
                     current.setSlotProchainMatchGagnant((i % 2 == 0) ? 1 : 2);
                 } else {
-                    // Round de chute : les gagnants vont directement au round interne suivant
-                    // Chaque match de chute alimente un match du round interne (1 pour 1 d'abord)
-                    // puis les paires se forment dans le round interne
-                    indexNext = i / 2;
-                    current.setSlotProchainMatchGagnant((i % 2 == 0) ? 1 : 2);
+                    // Round de chute : 1 gagnant → 1 match du round interne (1 pour 1)
+                    indexNext = i;
+                    current.setSlotProchainMatchGagnant(1); // slot 1 = survivant LB
                 }
 
                 if (indexNext < nextRound.size()) {
@@ -511,34 +509,30 @@ public class MatchTournoiService {
      * - un seul joueur présent → bye LB : le joueur est gagnant automatique,
      *   le match est marqué terminé et le gagnant propagé
      */
-    private void autoCompleterByesLoser(List<MatchTournoi> lbRound1) {
-        for (MatchTournoi m : lbRound1) {
-            boolean j1Present = m.getJoueur1() != null;
-            boolean j2Present = m.getJoueur2() != null;
+    // ── G. AUTO-COMPLÉTION DES BYES LB (cascade sur tous les rounds) ──
+    private void autoCompleterByesLoser(List<List<MatchTournoi>> roundsLosers) {
+        for (List<MatchTournoi> round : roundsLosers) {
+            for (MatchTournoi m : round) {
+                boolean j1 = m.getJoueur1() != null;
+                boolean j2 = m.getJoueur2() != null;
 
-            if (!j1Present && !j2Present) {
-                // Slot fantôme : aucun joueur ne viendra jamais ici
-                // (peut arriver si tous les matchs WB R1 étaient des byes)
-                continue;
+                if (!j1 && !j2) continue; // slot fantôme
+
+                if (j1 && !j2) {
+                    m.setGagnant(m.getJoueur1());
+                    m.setScoreJoueur1(1);
+                    m.setScoreJoueur2(0);
+                    m.setTermine(true);
+                    propagerGagnant(m, m.getJoueur1()); // peut remplir le match suivant
+                } else if (!j1 && j2) {
+                    m.setGagnant(m.getJoueur2());
+                    m.setScoreJoueur1(0);
+                    m.setScoreJoueur2(1);
+                    m.setTermine(true);
+                    propagerGagnant(m, m.getJoueur2());
+                }
+                // Les deux présents → match normal
             }
-
-            if (j1Present && !j2Present) {
-                // Bye LB : joueur1 gagne automatiquement
-                m.setGagnant(m.getJoueur1());
-                m.setScoreJoueur1(1);
-                m.setScoreJoueur2(0);
-                m.setTermine(true);
-                propagerGagnant(m, m.getJoueur1());
-
-            } else if (!j1Present && j2Present) {
-                // Bye LB : joueur2 gagne automatiquement
-                m.setGagnant(m.getJoueur2());
-                m.setScoreJoueur1(0);
-                m.setScoreJoueur2(1);
-                m.setTermine(true);
-                propagerGagnant(m, m.getJoueur2());
-            }
-            // Si les deux sont présents → match normal, rien à faire
         }
     }
 
