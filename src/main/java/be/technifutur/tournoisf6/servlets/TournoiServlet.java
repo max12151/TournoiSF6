@@ -48,8 +48,6 @@ public class TournoiServlet extends HttpServlet {
 
                 List<MatchTournoi> matchs = matchTournoiService.findByTournoi(id);
 
-                // Recherche du champion : gagnant du dernier match GRAND_FINAL terminé
-                // (soit GF R2 si bracket reset joué, soit GF R1 si le joueur WB a gagné directement)
                 matchs.stream()
                         .filter(m -> m.getBracketType() == BracketTypeEnum.GRAND_FINAL
                                 && Boolean.TRUE.equals(m.getTermine())

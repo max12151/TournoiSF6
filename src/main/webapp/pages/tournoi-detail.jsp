@@ -22,7 +22,6 @@
 
     String erreur = request.getParameter("erreur");
 
-    // Regroupement des matchs par bracket, triés par round
     List<MatchTournoi> matchsWinners = matchs.stream()
             .filter(m -> m.getBracketType() == BracketTypeEnum.WINNERS)
             .sorted(Comparator.comparingInt(MatchTournoi::getRoundNumber))
@@ -559,11 +558,7 @@
                     boolean j1 = match.getJoueur1() != null;
                     boolean j2 = match.getJoueur2() != null;
                     boolean termine = Boolean.TRUE.equals(match.getTermine());
-
-                    // Masquer slot fantôme : 0 joueur et non terminé
                     if (!j1 && !j2 && !termine) continue;
-
-
                     boolean isBye = termine && (!j1 || !j2);
             %>
             <tr class="<%= isBye ? "bye-row" : "" %>">
