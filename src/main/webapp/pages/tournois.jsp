@@ -15,37 +15,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tournois</title>
+    <title>Tournois — TournoiSF6</title>
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,800&display=swap" rel="stylesheet">
     <style>
         :root {
             color-scheme: dark;
-            --bg: #0a0f1f;
-            --bg-alt: #0f172a;
-            --surface: rgba(17, 24, 39, 0.84);
-            --surface-2: rgba(30, 41, 59, 0.88);
-            --line: rgba(148, 163, 184, 0.16);
-            --line-strong: rgba(148, 163, 184, 0.28);
-            --text: #f8fafc;
-            --text-soft: #cbd5e1;
-            --text-muted: #94a3b8;
-            --primary: #22c55e;
-            --primary-2: #16a34a;
-            --primary-3: #15803d;
-            --accent: #60a5fa;
-            --danger-bg: rgba(127, 29, 29, 0.30);
-            --danger-border: rgba(248, 113, 113, 0.30);
-            --danger-text: #fecaca;
-            --shadow-1: 0 10px 30px rgba(0, 0, 0, 0.18);
-            --shadow-2: 0 20px 60px rgba(0, 0, 0, 0.32);
-            --radius-sm: 12px;
-            --radius-md: 18px;
-            --radius-lg: 24px;
-            --max-width: 1180px;
+            --bg:            #080d1a;
+            --bg-alt:        #0c1426;
+            --surface:       rgba(15, 22, 40, 0.90);
+            --surface-2:     rgba(22, 33, 58, 0.92);
+            --surface-hover: rgba(28, 40, 68, 0.96);
+            --line:          rgba(148, 163, 184, 0.14);
+            --line-strong:   rgba(148, 163, 184, 0.26);
+            --text:          #f1f5f9;
+            --text-soft:     #cbd5e1;
+            --text-muted:    #64748b;
+            --primary:       #22c55e;
+            --primary-2:     #16a34a;
+            --primary-3:     #15803d;
+            --primary-glow:  rgba(34, 197, 94, 0.22);
+            --accent:        #60a5fa;
+            --accent-glow:   rgba(96, 165, 250, 0.15);
+            --danger-bg:     rgba(127, 29, 29, 0.28);
+            --danger-border: rgba(248, 113, 113, 0.28);
+            --danger-text:   #fca5a5;
+            --radius-sm:  10px;
+            --radius-md:  16px;
+            --radius-lg:  22px;
+            --shadow-md:  0 8px 24px rgba(0, 0, 0, 0.30);
+            --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+            --max-width:  1160px;
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         html {
             -webkit-font-smoothing: antialiased;
@@ -54,373 +56,422 @@
         }
 
         body {
-            margin: 0;
             min-height: 100vh;
-            font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+            font-family: 'Satoshi', Inter, 'Segoe UI', sans-serif;
+            font-size: 1rem;
             color: var(--text);
             background:
-                    radial-gradient(circle at top left, rgba(34, 197, 94, 0.10), transparent 28%),
-                    radial-gradient(circle at top right, rgba(96, 165, 250, 0.10), transparent 24%),
-                    linear-gradient(180deg, var(--bg) 0%, #0b1120 45%, var(--bg-alt) 100%);
-            padding: 32px 20px 48px;
+                    radial-gradient(ellipse 60% 40% at 10% 0%, rgba(34, 197, 94, 0.08) 0%, transparent 60%),
+                    radial-gradient(ellipse 50% 35% at 90% 0%, rgba(96, 165, 250, 0.08) 0%, transparent 55%),
+                    linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+            padding: 0 0 64px;
         }
 
+        /* ── Topbar ── */
+        .topbar {
+            border-bottom: 1px solid var(--line);
+            background: rgba(8, 13, 26, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .topbar-inner {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--line-strong);
+            background: var(--surface-2);
+            color: var(--text-soft);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all var(--transition);
+        }
+        .btn-back::before { content: "←"; }
+        .btn-back:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .topbar-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-left: auto;
+            letter-spacing: 0.01em;
+        }
+
+        /* ── Container ── */
         .container {
             max-width: var(--max-width);
             margin: 0 auto;
+            padding: 40px 24px 0;
         }
 
-        .top-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-bottom: 20px;
-        }
-
-        h1 {
-            margin: 0 0 28px;
-            font-size: clamp(2rem, 1.4rem + 1.5vw, 3rem);
-            line-height: 1.05;
+        /* ── Page header ── */
+        .page-header { margin-bottom: 36px; }
+        .page-header h1 {
+            font-size: clamp(1.75rem, 1.2rem + 1.4vw, 2.75rem);
             font-weight: 800;
-            letter-spacing: -0.03em;
-            color: var(--text);
+            letter-spacing: -0.035em;
+            line-height: 1.08;
+            background: linear-gradient(135deg, var(--text) 40%, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
         }
 
-        h2 {
-            margin: 0 0 18px;
-            font-size: 1.15rem;
-            line-height: 1.2;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--text);
-        }
-
+        /* ── Cards ── */
         .card {
             position: relative;
             overflow: hidden;
-            margin-bottom: 22px;
-            padding: 24px;
+            margin-bottom: 24px;
+            padding: 28px 28px 24px;
             border-radius: var(--radius-lg);
             border: 1px solid var(--line);
-            background:
-                    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)),
-                    var(--surface);
-            box-shadow: var(--shadow-2);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            background: var(--surface);
+            box-shadow: var(--shadow-md);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-
-        .card::before {
+        .card::after {
             content: "";
             position: absolute;
             inset: 0;
             pointer-events: none;
-            background: linear-gradient(
-                    135deg,
-                    rgba(255,255,255,0.08),
-                    transparent 30%,
-                    transparent 70%,
-                    rgba(255,255,255,0.03)
-            );
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, transparent 40%);
         }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 14px;
-        }
-
-        input,
-        select,
-        button,
-        .btn-link {
-            width: 100%;
-            min-height: 48px;
-            padding: 12px 14px;
-            border-radius: var(--radius-sm);
-            font-size: 0.95rem;
-            transition:
-                    border-color 0.2s ease,
-                    box-shadow 0.2s ease,
-                    background-color 0.2s ease,
-                    transform 0.18s ease,
-                    color 0.2s ease;
-        }
-
-        input,
-        select {
-            border: 1px solid var(--line);
-            background: var(--surface-2);
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
             color: var(--text);
-            outline: none;
+            letter-spacing: -0.01em;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-title::before {
+            content: "";
+            display: block;
+            width: 3px;
+            height: 18px;
+            border-radius: 2px;
+            background: var(--primary);
+            flex-shrink: 0;
         }
 
-        input::placeholder {
+        /* ── Grille de formulaire ── */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .form-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             color: var(--text-muted);
         }
 
-        input:hover,
-        select:hover {
+        /* ── Inputs & Selects ── */
+        input, select {
+            width: 100%;
+            min-height: 44px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--line);
+            background: var(--surface-2);
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.925rem;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        input::placeholder { color: var(--text-muted); }
+        input:hover, select:hover {
             border-color: var(--line-strong);
-            background: rgba(30, 41, 59, 0.98);
+            background: var(--surface-hover);
         }
-
-        input:focus,
-        select:focus {
-            border-color: rgba(96, 165, 250, 0.75);
-            box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
-            background: rgba(30, 41, 59, 1);
+        input:focus, select:focus {
+            border-color: rgba(96, 165, 250, 0.70);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+            background: var(--surface-hover);
         }
-
-        input[disabled],
-        select[disabled] {
-            opacity: 0.7;
+        input[disabled], select[disabled] {
+            opacity: 0.45;
             cursor: not-allowed;
         }
+        select option { background: #1e293b; }
 
-        button,
-        .btn-link {
-            border: none;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
-            color: #ffffff;
-            font-weight: 700;
-            letter-spacing: 0.01em;
-            cursor: pointer;
-            box-shadow: 0 12px 26px rgba(34, 197, 94, 0.28);
-            text-decoration: none;
+        /* ── Bouton principal ── */
+        .btn-primary {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: auto;
-            min-width: 220px;
+            gap: 8px;
+            min-height: 44px;
+            padding: 10px 28px;
+            border-radius: var(--radius-sm);
+            border: none;
+            background: var(--primary);
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.925rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            box-shadow: 0 4px 16px var(--primary-glow);
+            transition: all var(--transition);
         }
-
-        button:hover,
-        .btn-link:hover {
+        .btn-primary:hover {
+            background: var(--primary-2);
+            box-shadow: 0 8px 28px rgba(34, 197, 94, 0.36);
             transform: translateY(-1px);
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-3) 100%);
-            box-shadow: 0 16px 32px rgba(34, 197, 94, 0.34);
-            color: #ffffff;
         }
-
-        button:active,
-        .btn-link:active {
-            transform: translateY(0);
-        }
-
-        button:focus,
-        .btn-link:focus {
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:focus {
             outline: none;
-            box-shadow:
-                    0 0 0 4px rgba(34, 197, 94, 0.18),
-                    0 16px 32px rgba(34, 197, 94, 0.34);
+            box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
-        .error {
-            margin-bottom: 18px;
-            padding: 14px 16px;
-            border-radius: 14px;
+        /* ── Alert erreur ── */
+        .alert-error {
+            margin-bottom: 20px;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
             border: 1px solid var(--danger-border);
             background: var(--danger-bg);
             color: var(--danger-text);
+            font-size: 0.9rem;
             font-weight: 600;
-            box-shadow: var(--shadow-1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
+        .alert-error::before { content: "⚠"; font-size: 1.1rem; }
 
+        /* ── Table ── */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+        }
         table {
             width: 100%;
-            margin-top: 12px;
-            border-collapse: separate;
-            border-spacing: 0;
-            overflow: hidden;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.02);
+            border-collapse: collapse;
+            font-size: 0.9rem;
         }
-
         thead th {
-            padding: 16px 14px;
+            padding: 13px 16px;
             text-align: left;
-            font-size: 0.80rem;
+            font-size: 0.73rem;
             font-weight: 700;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
             text-transform: uppercase;
-            color: var(--text-soft);
-            background: rgba(15, 23, 42, 0.96);
+            color: var(--text-muted);
+            background: rgba(8, 13, 26, 0.95);
             border-bottom: 1px solid var(--line-strong);
             white-space: nowrap;
         }
-
         tbody td {
-            padding: 16px 14px;
-            text-align: left;
-            color: var(--text);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.10);
+            padding: 14px 16px;
+            color: var(--text-soft);
+            border-bottom: 1px solid var(--line);
             vertical-align: middle;
         }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr { transition: background var(--transition); }
+        tbody tr:hover { background: rgba(96, 165, 250, 0.05); }
 
-        tbody tr {
-            transition: background-color 0.18s ease;
+        .td-name {
+            color: var(--text);
+            font-weight: 600;
         }
 
-        tbody tr:hover {
-            background: rgba(96, 165, 250, 0.06);
-        }
-
-        tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        a {
+        /* ── Badges état ── */
+        .badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            color: #93c5fd;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 0.73rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .badge-green  { background: rgba(34, 197, 94, 0.15);  color: #86efac; border: 1px solid rgba(34, 197, 94, 0.25); }
+        .badge-blue   { background: rgba(96, 165, 250, 0.12); color: #93c5fd; border: 1px solid rgba(96, 165, 250, 0.22); }
+        .badge-gold   { background: rgba(250, 204, 21, 0.12); color: #fde047; border: 1px solid rgba(250, 204, 21, 0.22); }
+        .badge-muted  { background: rgba(148, 163, 184, 0.10); color: var(--text-muted); border: 1px solid rgba(148, 163, 184, 0.18); }
+
+        /* ── Lien détail ── */
+        .table-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--accent);
             font-weight: 600;
+            font-size: 0.875rem;
             text-decoration: none;
-            transition: color 0.2s ease;
+            transition: color var(--transition);
         }
+        .table-link:hover { color: #bfdbfe; }
+        .table-link::after { content: "→"; transition: transform var(--transition); }
+        .table-link:hover::after { transform: translateX(3px); }
 
-        a:hover {
-            color: #bfdbfe;
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .container { padding: 28px 16px 0; }
+            .card { padding: 20px 18px; }
+            .form-grid { grid-template-columns: 1fr; }
         }
-
-        a::after {
-            content: "→";
-            transition: transform 0.2s ease;
-        }
-
-        a:hover::after {
-            transform: translateX(2px);
-        }
-
-        .btn-link::after {
-            content: "";
-        }
-
-        br {
-            display: block;
-            content: "";
-            margin-top: 4px;
-        }
-
-        @media (max-width: 900px) {
-            body {
-                padding: 22px 14px 36px;
-            }
-
-            .card {
-                padding: 18px;
-                border-radius: 20px;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-
-            h1 {
-                margin-bottom: 22px;
-            }
-
-            .top-actions {
-                justify-content: stretch;
-            }
-
-            .btn-link {
-                width: 100%;
-                min-width: 0;
-            }
-        }
-
-        @media (max-width: 560px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-
-            input,
-            select,
-            button {
-                min-height: 46px;
-            }
-
-            thead th,
-            tbody td {
-                padding: 13px 12px;
-            }
+        @media (max-width: 480px) {
+            .topbar { padding: 12px 16px; }
+            thead th, tbody td { padding: 11px 12px; }
         }
     </style>
 </head>
 <body>
+
+<nav class="topbar">
+    <div class="topbar-inner">
+        <a class="btn-back" href="${pageContext.request.contextPath}/">Accueil</a>
+        <span class="topbar-title">TournoiSF6</span>
+    </div>
+</nav>
+
 <div class="container">
-    <div class="top-actions">
-        <a class="btn-link" href="${pageContext.request.contextPath}/">Revenir à l'accueil</a>
+
+    <div class="page-header">
+        <h1>Tournois SF6</h1>
+        <p>Gérez et suivez vos tournois Street Fighter 6</p>
     </div>
 
-    <h1>Tournois SF6</h1>
-
-    <% if (erreur != null) { %>
-    <div class="error"><%= erreur %></div>
+    <% if (erreur != null && !erreur.isBlank()) { %>
+    <div class="alert-error"><%= erreur %></div>
     <% } %>
 
+    <!-- ═══ Formulaire de création ═══ -->
     <div class="card">
-        <h2>Créer un tournoi</h2>
+        <div class="card-title">Créer un tournoi</div>
         <form method="post" action="${pageContext.request.contextPath}/tournois">
             <input type="hidden" name="action" value="create">
+            <div class="form-grid">
 
-            <div class="grid">
-                <input type="text" name="nom" placeholder="Nom du tournoi" required>
-                <input type="date" name="dateDebut" required>
-                <input type="date" name="dateFin" required>
-                <input type="number" name="nombreJoueursMax" min="2" placeholder="Nombre max de joueurs" required>
+                <div class="form-group">
+                    <label class="form-label" for="nom">Nom</label>
+                    <input id="nom" type="text" name="nom" placeholder="Nom du tournoi" required>
+                </div>
 
-                <select name="rankMaxAutorise" required>
-                    <% for (RankEnum rank : ranks) { %>
-                    <option value="<%= rank.name() %>"><%= rank.name() %></option>
-                    <% } %>
-                </select>
+                <div class="form-group">
+                    <label class="form-label" for="dateDebut">Date début</label>
+                    <input id="dateDebut" type="date" name="dateDebut" required>
+                </div>
 
-                <input type="text" value="DOUBLE_ELIMINATION" disabled>
+                <div class="form-group">
+                    <label class="form-label" for="dateFin">Date fin</label>
+                    <input id="dateFin" type="date" name="dateFin" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="joueurs">Max joueurs</label>
+                    <input id="joueurs" type="number" name="nombreJoueursMax" min="2" placeholder="Ex : 8, 16, 32…" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="rank">Rank max autorisé</label>
+                    <select id="rank" name="rankMaxAutorise" required>
+                        <% for (RankEnum rank : ranks) { %>
+                        <option value="<%= rank.name() %>"><%= rank.name() %></option>
+                        <% } %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Format</label>
+                    <input type="text" value="DOUBLE ELIMINATION" disabled>
+                </div>
+
             </div>
-
-            <br>
-            <button type="submit">Créer le tournoi</button>
+            <button type="submit" class="btn-primary">Créer le tournoi</button>
         </form>
     </div>
 
+    <!-- ═══ Liste des tournois ═══ -->
     <div class="card">
-        <h2>Liste des tournois</h2>
-
-        <table>
-            <thead>
-            <tr>
-                <th>Nom</th>
-                <th>Date début</th>
-                <th>Date fin</th>
-                <th>Max joueurs</th>
-                <th>Format</th>
-                <th>État</th>
-                <th>Rank max</th>
-                <th>Détail</th>
-            </tr>
-            </thead>
-            <tbody>
-            <% for (Tournoi tournoi : tournois) { %>
-            <tr>
-                <td><%= tournoi.getNom() %></td>
-                <td><%= tournoi.getDateDebut() %></td>
-                <td><%= tournoi.getDateFin() %></td>
-                <td><%= tournoi.getNombreJoueursMax() %></td>
-                <td><%= tournoi.getFormat() %></td>
-                <td><%= tournoi.getEtat() %></td>
-                <td><%= tournoi.getRankMaxAutorise() %></td>
-                <td>
-                    <a href="${pageContext.request.contextPath}/tournois?id=<%= tournoi.getId() %>">Voir</a>
-                </td>
-            </tr>
-            <% } %>
-            </tbody>
-        </table>
+        <div class="card-title">Liste des tournois</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Date début</th>
+                    <th>Date fin</th>
+                    <th>Max joueurs</th>
+                    <th>Format</th>
+                    <th>État</th>
+                    <th>Rank max</th>
+                    <th>Détail</th>
+                </tr>
+                </thead>
+                <tbody>
+                <%
+                    for (Tournoi tournoi : tournois) {
+                        String etatName  = tournoi.getEtat().name();
+                        String etatClass;
+                        switch (etatName) {
+                            case "EN_COURS":   etatClass = "badge-blue";  break;
+                            case "TERMINE":    etatClass = "badge-green"; break;
+                            case "EN_ATTENTE": etatClass = "badge-gold";  break;
+                            default:           etatClass = "badge-muted"; break;
+                        }
+                %>
+                <tr>
+                    <td class="td-name"><%= tournoi.getNom() %></td>
+                    <td><%= tournoi.getDateDebut() %></td>
+                    <td><%= tournoi.getDateFin() %></td>
+                    <td><%= tournoi.getNombreJoueursMax() %></td>
+                    <td><%= tournoi.getFormat() %></td>
+                    <td><span class="badge <%= etatClass %>"><%= tournoi.getEtat() %></span></td>
+                    <td><%= tournoi.getRankMaxAutorise() %></td>
+                    <td>
+                        <a class="table-link" href="${pageContext.request.contextPath}/tournois?id=<%= tournoi.getId() %>">Voir</a>
+                    </td>
+                </tr>
+                <% } %>
+                </tbody>
+            </table>
+        </div>
     </div>
+
 </div>
 </body>
 </html>

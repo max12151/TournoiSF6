@@ -72,7 +72,7 @@ public class Tournoi {
     }
 
     public boolean isDateCoherente() {
-        return dateDebut != null && dateFin != null && dateFin.isAfter(dateDebut);
+        return dateDebut != null && dateFin != null && !dateFin.isBefore(dateDebut);
     }
 
     public boolean isComplet() {

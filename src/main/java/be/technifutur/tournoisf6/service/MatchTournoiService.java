@@ -70,6 +70,12 @@ public class MatchTournoiService {
 
             if (joueurs.size() < 2)
                 throw new IllegalStateException("Il faut au moins 2 joueurs pour lancer le tournoi.");
+            if (joueurs.size() != 2 && !estPuissanceDeDeux(joueurs.size())) {
+                throw new IllegalStateException(
+                        "Le nombre de participants (" + joueurs.size() + ") doit être une puissance de 2 " +
+                                "(2, 4, 8, 16, 32…) pour lancer le tournoi."
+                );
+            }
 
             if (joueurs.size() == 2) {
                 lancerTournoiDeuxJoueurs(em, tournoi, joueurs);
@@ -493,6 +499,9 @@ public class MatchTournoiService {
         int p = 1;
         while (p < n) p <<= 1;
         return p;
+    }
+    private boolean estPuissanceDeDeux(int n) {
+        return n > 0 && (n & (n - 1)) == 0;
     }
 
     private int log2(int n) {
